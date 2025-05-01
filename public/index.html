@@ -1,31 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Login Chat</title>
-  <link rel="stylesheet" href="public/style.css" />
+  <title>Masuk ke Room</title>
+  <link rel="stylesheet" href="public/style.css">
 </head>
 <body>
   <div class="container">
-    <h2>Masukkan Kode Akses</h2>
-    <input type="password" id="code" placeholder="Kode...">
-    <button onclick="login()">Masuk</button>
+    <h2>Masuk / Buat Room</h2>
+    <input type="text" id="username" placeholder="Nama Anda">
+    <input type="text" id="room" placeholder="Kode Room">
+    <button onclick="createRoom()">Buat Room</button>
+    <button onclick="joinRoom()">Masuk Room</button>
   </div>
 
   <script>
-    async function login() {
-      const code = document.getElementById('code').value;
-      const res = await fetch('/api/login', {
+    async function createRoom() {
+      const username = document.getElementById('username').value;
+      const room = document.getElementById('room').value;
+      if (!username || !room) return alert("Lengkapi data");
+      await fetch('/api/createRoom', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code })
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ room })
       });
-      const result = await res.json();
-      if (result.success) {
-        localStorage.setItem('auth', 'true');
-        window.location.href = 'chat.html';
-      } else {
-        alert('Kode salah!');
-      }
+      localStorage.setItem('username', username);
+      localStorage.setItem('room', room);
+      window.location.href = 'chat.html';
+    }
+
+    function joinRoom() {
+      const username = document.getElementById('username').value;
+      const room = document.getElementById('room').value;
+      if (!username || !room) return alert("Lengkapi data");
+      localStorage.setItem('username', username);
+      localStorage.setItem('room', room);
+      window.location.href = 'chat.html';
     }
   </script>
 </body>
