@@ -1,41 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Chat</title>
-  <link rel="stylesheet" href="public/style.css" />
+  <title>Room Chat</title>
+  <link rel="stylesheet" href="public/style.css">
 </head>
-<body onload="checkAuth(); loadMessages();">
+<body onload="init();">
   <div class="chat-box" id="chatBox"></div>
   <input type="text" id="message" placeholder="Ketik pesan...">
   <button onclick="sendMessage()">Kirim</button>
 
   <script>
-    function checkAuth() {
-      if (localStorage.getItem('auth') !== 'true') {
-        window.location.href = 'index.html';
-      }
+    let username = '';
+    let room = '';
+
+    function init() {
+      username = localStorage.getItem('username');
+      room = localStorage.getItem('room');
+      if (!username || !room) return window.location.href = 'index.html';
+      loadMessages();
+      setInterval(loadMessages, 3000);
     }
 
     async function loadMessages() {
-      const res = await fetch('/api/getMessages');
+      const res = await fetch(`/api/getMessages?room=${room}`);
       const data = await res.json();
       const chatBox = document.getElementById('chatBox');
-      chatBox.innerHTML = data.messages.map(msg => `<p>${msg}</p>`).join('');
+      chatBox.innerHTML = data.messages.map(m => `<p><b>${m.name}:</b> ${m.text}</p>`).join('');
     }
 
     async function sendMessage() {
-      const msg = document.getElementById('message').value;
-      if (!msg.trim()) return;
+      const text = document.getElementById('message').value;
+      if (!text.trim()) return;
       await fetch('/api/sendMessage', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg })
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ room, name: username, text })
       });
       document.getElementById('message').value = '';
       loadMessages();
     }
-
-    setInterval(loadMessages, 3000);
   </script>
 </body>
 </html>
