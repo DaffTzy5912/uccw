@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Room Chat</title>
+  <link rel="stylesheet" href="public/style.css">
+</head>
+<body onload="init();">
+  <div class="chat-box" id="chatBox"></div>
+  <input type="text" id="message" placeholder="Ketik pesan...">
+  <button onclick="sendMessage()">Kirim</button>
+
+  <script>
+    let username = '';
+    let room = '';
+
+    function init() {
+      username = localStorage.getItem('username');
+      room = localStorage.getItem('room');
+      if (!username || !room) return window.location.href = 'index.html';
+      loadMessages();
+      setInterval(loadMessages, 3000);
+    }
+
+    async function loadMessages() {
+      const res = await fetch(`/api/getMessages?room=${room}`);
+      const data = await res.json();
+      const chatBox = document.getElementById('chatBox');
+      chatBox.innerHTML = data.messages.map(m => `<p><b>${m.name}:</b> ${m.text}</p>`).join('');
+    }
+
+    async function sendMessage() {
+      const text = document.getElementById('message').value;
+      if (!text.trim()) return;
+      await fetch('/api/sendMessage', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ room, name: username, text })
+      });
+      document.getElementById('message').value = '';
+      loadMessages();
+    }
+  </script>
+</body>
+</html>
