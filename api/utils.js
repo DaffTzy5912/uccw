@@ -1,12 +1,13 @@
 import fs from 'fs/promises';
 
-export async function saveMessage(message) {
+export async function saveMessage(room, message) {
+  const path = `data/${room}.json`;
   try {
-    const data = await fs.readFile('data/messages.json', 'utf8');
+    const data = await fs.readFile(path, 'utf8');
     const json = JSON.parse(data);
     json.messages.push(message);
-    await fs.writeFile('data/messages.json', JSON.stringify(json));
+    await fs.writeFile(path, JSON.stringify(json));
   } catch {
-    await fs.writeFile('data/messages.json', JSON.stringify({ messages: [message] }));
+    await fs.writeFile(path, JSON.stringify({ messages: [message] }));
   }
 }
