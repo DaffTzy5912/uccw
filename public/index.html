@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login Chat</title>
+  <link rel="stylesheet" href="public/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Masukkan Kode Akses</h2>
+    <input type="password" id="code" placeholder="Kode...">
+    <button onclick="login()">Masuk</button>
+  </div>
+
+  <script>
+    async function login() {
+      const code = document.getElementById('code').value;
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+      });
+      const result = await res.json();
+      if (result.success) {
+        localStorage.setItem('auth', 'true');
+        window.location.href = 'chat.html';
+      } else {
+        alert('Kode salah!');
+      }
+    }
+  </script>
+</body>
+</html>
