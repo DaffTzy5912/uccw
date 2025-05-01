@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat</title>
+  <link rel="stylesheet" href="public/style.css" />
+</head>
+<body onload="checkAuth(); loadMessages();">
+  <div class="chat-box" id="chatBox"></div>
+  <input type="text" id="message" placeholder="Ketik pesan...">
+  <button onclick="sendMessage()">Kirim</button>
+
+  <script>
+    function checkAuth() {
+      if (localStorage.getItem('auth') !== 'true') {
+        window.location.href = 'index.html';
+      }
+    }
+
+    async function loadMessages() {
+      const res = await fetch('/api/getMessages');
+      const data = await res.json();
+      const chatBox = document.getElementById('chatBox');
+      chatBox.innerHTML = data.messages.map(msg => `<p>${msg}</p>`).join('');
+    }
+
+    async function sendMessage() {
+      const msg = document.getElementById('message').value;
+      if (!msg.trim()) return;
+      await fetch('/api/sendMessage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg })
+      });
+      document.getElementById('message').value = '';
+      loadMessages();
+    }
+
+    setInterval(loadMessages, 3000);
+  </script>
+</body>
+</html>
